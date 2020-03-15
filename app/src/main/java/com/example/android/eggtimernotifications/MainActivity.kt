@@ -16,9 +16,13 @@
 
 package com.example.android.eggtimernotifications
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.android.eggtimernotifications.ui.EggTimerFragment
+import com.example.android.eggtimernotifications.util.createChannel
+import com.example.android.eggtimernotifications.util.createPushChannel
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,5 +35,22 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.container, EggTimerFragment.newInstance())
                 .commitNow()
         }
+
+        createChannel(applicationContext)
+        createPushChannel(applicationContext)
+
+
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val mTry = intent?.getStringExtra("String")
+        intent?.extras?.let {
+            val extras = intent.extras
+            val data = it["data"]
+            Log.e("EXTRAS", "$extras")
+            Log.e("DATA", "$data")
+        }
+        Log.e("TRY", "$mTry")
     }
 }

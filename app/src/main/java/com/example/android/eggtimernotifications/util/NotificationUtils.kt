@@ -16,13 +16,17 @@
 
 package com.example.android.eggtimernotifications.util
 
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.android.eggtimernotifications.MainActivity
+import com.example.android.eggtimernotifications.MyApp
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.receiver.SnoozeReceiver
 
@@ -31,40 +35,96 @@ private val NOTIFICATION_ID = 0
 private val REQUEST_CODE = 0
 private val FLAGS = 0
 
-// TODO: Step 1.1 extension function to send messages (GIVEN)
 /**
  * Builds and delivers the notification.
  *
  * @param context, activity context.
  */
-fun NotificationManager.sendNotification(messageBody: String, applicationContext: Context) {
-    // Create the content intent for the notification, which launches
-    // this activity
-    // TODO: Step 1.11 create intent
 
-    // TODO: Step 1.12 create PendingIntent
-
-    // TODO: Step 2.0 add style
-
-    // TODO: Step 2.2 add snooze action
-
-    // TODO: Step 1.2 get an instance of NotificationCompat.Builder
-    // Build the notification
-
-    // TODO: Step 1.8 use the new 'breakfast' notification channel
-
-    // TODO: Step 1.3 set title, text and icon to builder
-
-    // TODO: Step 1.13 set content intent
-
-        // TODO: Step 2.1 add style to builder
-
-        // TODO: Step 2.3 add snooze action
-
-        // TODO: Step 2.5 set priority
-
-    // TODO: Step 1.4 call notify
-
+fun fireNotification(messageBody: String, applicationContext: Context){
+    //if (MyApp.isOnBackground) {
+    val notificationManager = ContextCompat.getSystemService(
+        applicationContext,
+        NotificationManager::class.java
+    ) as NotificationManager
+    notificationManager.sendNotification(messageBody, applicationContext)
+    // }
 }
 
-// TODO: Step 1.14 Cancel all notifications
+fun clearNotification(applicationContext: Context){
+    val notificationManager = ContextCompat.getSystemService(applicationContext, NotificationManager::class.java) as NotificationManager
+    notificationManager.cancelAll()
+}
+
+private fun NotificationManager.sendNotification(messageBody: String, applicationContext: Context) {
+
+    val pendingIntent = createPendingIntent(applicationContext)
+    val style = createNotificationStyle(applicationContext)
+    val image = createBigImage(applicationContext)
+    val snoozePendingIntent = createSnoozePendingIntent(applicationContext)
+
+    val builder = NotificationCompat.Builder(applicationContext, applicationContext.getString(R.string.egg_notification_channel_id))
+        .setSmallIcon(R.drawable.cooked_egg)
+        .setContentTitle(applicationContext.getString(R.string.notification_title))
+        .setContentText(messageBody)
+        .setContentIntent(pendingIntent)
+        .setAutoCancel(true)
+        .setStyle(style)
+        .setLargeIcon(image)
+        .setDefaults(Notification.DEFAULT_ALL)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .addAction(R.drawable.egg_icon, applicationContext.getString(R.string.snooze), snoozePendingIntent)
+
+    notify(NOTIFICATION_ID, builder.build())
+}
+
+fun createChannel(applicationContext: Context){
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        val notificationChannel = NotificationChannel(applicationContext.getString(R.string.egg_notification_channel_id),
+            applicationContext.getString(R.string.egg_notification_channel_name),
+            NotificationManager.IMPORTANCE_HIGH)
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.RED
+        notificationChannel.enableVibration(true)
+        notificationChannel.description = "Time for Breakfast"
+        notificationChannel.setShowBadge(false)
+        val notificationManager = ContextCompat.getSystemService(applicationContext, NotificationManager::class.java) as NotificationManager
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+}
+
+fun createPushChannel(applicationContext: Context){
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        val notificationChannel = NotificationChannel(applicationContext.getString(R.string.breakfast_notification_channel_id),
+            applicationContext.getString(R.string.breakfast_notification_channel_name),
+            NotificationManager.IMPORTANCE_HIGH)
+        notificationChannel.enableLights(true)
+        notificationChannel.lightColor = Color.RED
+        notificationChannel.enableVibration(true)
+        notificationChannel.description = "Time for Breakfast"
+        notificationChannel.setShowBadge(false)
+        val notificationManager = ContextCompat.getSystemService(applicationContext, NotificationManager::class.java) as NotificationManager
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+}
+
+private fun createPendingIntent(applicationContext: Context): PendingIntent {
+    val contentIntent = Intent(applicationContext,  MainActivity::class.java)
+    contentIntent.putExtra("String", "try")
+    return PendingIntent.getActivity(applicationContext, NOTIFICATION_ID, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+}
+
+private fun createBigImage(applicationContext: Context): Bitmap {
+    return BitmapFactory.decodeResource(applicationContext.resources, R.drawable.cooked_egg)
+}
+
+private fun createNotificationStyle(applicationContext: Context): NotificationCompat.BigPictureStyle {
+    return NotificationCompat.BigPictureStyle()
+        .bigPicture(createBigImage(applicationContext))
+        .bigLargeIcon(null)
+}
+
+private fun createSnoozePendingIntent(applicationContext: Context): PendingIntent{
+    val contentIntent = Intent(applicationContext, SnoozeReceiver::class.java)
+    return PendingIntent.getBroadcast(applicationContext, REQUEST_CODE, contentIntent, FLAGS)
+}

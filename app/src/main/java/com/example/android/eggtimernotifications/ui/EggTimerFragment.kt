@@ -50,16 +50,8 @@ class EggTimerFragment : Fragment() {
         binding.eggTimerViewModel = viewModel
         binding.lifecycleOwner = this.viewLifecycleOwner
 
-        // TODO: Step 1.7 call create channel
 
         return binding.root
-    }
-
-    private fun createChannel(channelId: String, channelName: String) {
-        // TODO: Step 1.6 START create a channel
-
-        // TODO: Step 1.6 END create a channel
-
     }
 
     companion object {

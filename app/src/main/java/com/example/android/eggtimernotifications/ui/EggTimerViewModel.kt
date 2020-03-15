@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.example.android.eggtimernotifications.ui
 
 import android.app.*
@@ -22,11 +22,11 @@ import android.content.Intent
 import android.os.CountDownTimer
 import android.os.SystemClock
 import androidx.core.app.AlarmManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.example.android.eggtimernotifications.receiver.AlarmReceiver
 import com.example.android.eggtimernotifications.R
-import com.example.android.eggtimernotifications.util.sendNotification
+import com.example.android.eggtimernotifications.util.clearNotification
+import com.example.android.eggtimernotifications.util.fireNotification
 import kotlinx.coroutines.*
 
 class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -118,9 +118,7 @@ class EggTimerViewModel(private val app: Application) : AndroidViewModel(app) {
                 }
                 val triggerTime = SystemClock.elapsedRealtime() + selectedInterval
 
-                // TODO: Step 1.5 get an instance of NotificationManager and call sendNotification
-
-                // TODO: Step 1.15 call cancel notification
+                clearNotification(app)
 
                 AlarmManagerCompat.setExactAndAllowWhileIdle(
                     alarmManager,
